@@ -11,13 +11,10 @@ editor: visual
 library(xml2)
 library(rvest)
 library(tidyverse)
+library(tidytext)
 ```
 
-Starting with the following page, Top 25 Report/October 6 to 12, 2024. <https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_6_to_12,_2024>
-
-The ultimate goal is to gather the table and convert it to a `data.frame`.
-
-As a first step, read in the html page as an R object. Extract the tables from this object (using the `rvest` package) and save the result as a new object. Follow the instructions if there is an error. Use `str()` on this new object -- it should be a list. Try to find the position of the table in this list since we need it in the next step.
+**October 6 to 12**
 
 ```{r}
 # reading in the html page as an R object
@@ -26,27 +23,171 @@ url <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_
 
 ```{r}
 # extracting the tables from url
-tables <- url %>% 
+table_oct6to12 <- url %>% 
   html_table(fill = TRUE)
 ```
 
 ```{r}
 # using str() on tables (a list)
-str(tables)
+str(table_oct6to12)
 ```
 
-Extract the table from the list and save it as another object. You can use subsetting via `[[…]]` to extract pieces from a list. Print the result.
-
 ```{r}
-# extracting the table and saving it as "top_25"
-top_25 <- tables[[1]]
+# extracting the table and saving it as "top_25_oct6to12"
+top_25_oct6to12 <- table_oct6to12[[1]]
 # printing the result
-print(top_25)
+print(top_25_oct6to12)
 ```
 
-You will see that the table needs some additional formatting. We only want rows and columns with actual values.
+```{r}
+# cleaning out the rows with NA
+top_25_oct6to12 <- top_25_oct6to12[, -c(3,5)]
+top_25_oct6to12
+```
+
+**October 13 to 19**
 
 ```{r}
-top_25 <- top_25[, -c(3,5)]
-top_25
+# reading in the html page as an R object
+url2 <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_13_to_19,_2024")
+```
+
+```{r}
+# extracting the tables from url
+table_oct13to19 <- url2 %>% 
+  html_table(fill = TRUE)
+```
+
+```{r}
+# using str() on tables (a list)
+str(table_oct13to19)
+```
+
+```{r}
+# extracting the table and saving it as "top_25_oct13to19"
+top_25_oct13to19 <- table_oct13to19[[1]]
+# printing the result
+print(top_25_oct13to19)
+```
+
+```{r}
+# cleaning out the rows with NA
+top_25_oct13to19 <- top_25_oct13to19[, -c(3,5)]
+top_25_oct13to19
+```
+
+**October 20 to 26**
+
+```{r}
+# reading in the html page as an R object
+url3 <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_20_to_26,_2024")
+```
+
+```{r}
+# extracting the tables from url
+table_oct20to26 <- url3 %>% 
+  html_table(fill = TRUE)
+```
+
+```{r}
+# using str() on tables (a list)
+str(table_oct20to26)
+```
+
+```{r}
+# extracting the table and saving it as "top_25_oct20to26"
+top_25_oct20to26 <- table_oct20to26[[1]]
+# printing the result
+print(top_25_oct20to26)
+```
+
+```{r}
+# cleaning out the rows with NA
+top_25_oct20to26 <- top_25_oct20to26[, -c(3,5)]
+top_25_oct20to26
+```
+
+**October 27 to November 2**
+
+```{r}
+# reading in the html page as an R object
+url4 <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_27_to_November_2,_2024")
+```
+
+```{r}
+# extracting the tables from url
+table_oct27tonov2 <- url4 %>% 
+  html_table(fill = TRUE)
+```
+
+```{r}
+# using str() on tables (a list)
+str(table_oct27tonov2)
+```
+
+```{r}
+# extracting the table and saving it as "top_25_oct27tonov2"
+top_25_oct27tonov2 <- table_oct27tonov2[[1]]
+# printing the result
+print(top_25_oct27tonov2)
+```
+
+```{r}
+# cleaning out the rows with NA
+top_25_oct27tonov2 <- top_25_oct27tonov2[, -c(3,5)]
+top_25_oct27tonov2
+```
+
+**Combining the four tables**
+
+```{r}
+combined <- rbind(top_25_oct6to12, top_25_oct13to19, top_25_oct20to26, top_25_oct27tonov2)
+combined <- combined[, -c(1,3)]
+```
+
+**Cleaning the data using tidytext**
+
+```{r}
+tokens <- combined %>%
+  unnest_tokens(word, `Notes/about`)
+
+data("stop_words")
+
+tokens_cleaned <- tokens %>%
+  anti_join(stop_words, by = "word")
+
+print(tokens_cleaned)
+```
+
+**Finding the common words overall**
+
+```{r}
+# common words across all articles
+common_words_overall <- tokens_cleaned %>%
+  count(word, sort = TRUE)
+
+print(common_words_overall)
+```
+
+```{r}
+# common words by article (not super insightful since not many words with n>1)
+common_words_by_article <- tokens_cleaned %>%
+  count(Article, word, sort = TRUE) %>%  
+  group_by(Article) %>%                  
+  top_n(10) %>%                       
+  arrange(Article, desc(n))            
+
+print(common_words_by_article)
+```
+
+```{r}
+# finding duplicate articles across weeks
+duplicates <- combined %>%
+  group_by(Article) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  filter(n() > 1) %>%
+  arrange(desc(n))
+
+# printing the duplicates
+print(duplicates)
 ```
