@@ -1,0 +1,52 @@
+---
+title: "Final Project"
+author: "Grace DesJardins"
+format: pdf
+editor: visual
+---
+
+## Wikipedia Web Scraping
+
+```{r, results='hide'}
+library(xml2)
+library(rvest)
+library(tidyverse)
+```
+
+Starting with the following page, Top 25 Report/October 6 to 12, 2024. <https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_6_to_12,_2024>
+
+The ultimate goal is to gather the table and convert it to a `data.frame`.
+
+As a first step, read in the html page as an R object. Extract the tables from this object (using the `rvest` package) and save the result as a new object. Follow the instructions if there is an error. Use `str()` on this new object -- it should be a list. Try to find the position of the table in this list since we need it in the next step.
+
+```{r}
+# reading in the html page as an R object
+url <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_6_to_12,_2024")
+```
+
+```{r}
+# extracting the tables from url
+tables <- url %>% 
+  html_table(fill = TRUE)
+```
+
+```{r}
+# using str() on tables (a list)
+str(tables)
+```
+
+Extract the table from the list and save it as another object. You can use subsetting via `[[…]]` to extract pieces from a list. Print the result.
+
+```{r}
+# extracting the table and saving it as "top_25"
+top_25 <- tables[[1]]
+# printing the result
+print(top_25)
+```
+
+You will see that the table needs some additional formatting. We only want rows and columns with actual values.
+
+```{r}
+top_25 <- top_25[, -c(3,5)]
+top_25
+```
