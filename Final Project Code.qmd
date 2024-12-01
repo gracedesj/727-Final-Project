@@ -191,3 +191,64 @@ duplicates <- combined %>%
 # printing the duplicates
 print(duplicates)
 ```
+
+```{r}
+# common words by articles commonly searched all 4 weeks
+common_words_by_article_4wks <- tokens_cleaned %>%
+  count(Article, word, sort = TRUE) %>%  
+ # group_by(Article) %>%  
+  filter(Article == "Deaths in 2024" | Article == "Elon Musk" | Article == "Lyle and Erik Menendez") %>%
+  top_n(10) %>%                       
+  arrange(Article, desc(n))            
+
+print(common_words_by_article_4wks)
+```
+
+## Google Trends API
+
+```{r}
+#| message = FALSE
+library(tidyverse)
+library(gtrendsR)
+library(censusapi)
+```
+
+```{r, cache=TRUE}
+res <- gtrends(c("death", "musk", "menendez"), 
+               geo = "", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res)
+```
+
+```{r}
+# transforming results into a tibble
+results <- as_tibble(res$interest_over_time)
+
+# creating data set called death, including "death" as the only keyword
+death <- results %>%
+  filter(keyword == "death")
+
+# creating data set called musk, including "musk" as the only keyword
+musk <- results %>%
+  filter(keyword == "musk")
+
+# creating data set called menendez, including "menendez" as the only keyword
+menendez <- results %>%
+  filter(keyword == "menendez")
+
+# finding the mean of the search hits
+mean(death$hits)
+mean(musk$hits)
+mean(menendez$hits)
+
+# finding the median of the search hits
+median(death$hits)
+median(musk$hits)
+median(menendez$hits)
+
+# finding the variance of the search hits
+var(death$hits)
+var(musk$hits)
+var(menendez$hits)
+```
