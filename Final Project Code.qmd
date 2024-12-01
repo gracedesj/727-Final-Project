@@ -162,7 +162,7 @@ print(tokens_cleaned)
 **Finding the common words overall**
 
 ```{r}
-# common words across all articles
+# common words across all articles (not very specific, thematic words)
 common_words_overall <- tokens_cleaned %>%
   count(word, sort = TRUE)
 
@@ -251,4 +251,106 @@ median(menendez$hits)
 var(death$hits)
 var(musk$hits)
 var(menendez$hits)
+```
+
+```{r}
+ggplot(results, aes(x = date, y = hits, color = keyword)) +
+  geom_line(linewidth = 1) +
+  facet_wrap(~ keyword, scales = "free_y") +
+  labs(title = "Google Trends Data",
+       x = "Date",
+       y = "Search Interest (0-100)",
+       color = "Keyword") +
+  theme_minimal()
+```
+
+```{r, cache=TRUE}
+res2 <- gtrends(c("musk", "menendez"), 
+               geo = "", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res2)
+```
+
+```{r, cache=TRUE}
+res3 <- gtrends(c("death", "musk", "menendez"), 
+               geo = "US", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res3)
+```
+
+```{r}
+res4 <- gtrends(c("musk", "menendez"), 
+               geo = "US", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res4)
+```
+
+```{r}
+# world
+# Define custom colors
+custom_colors <- c("death" = "green", "musk" = "blue", "menendez" = "orange")
+
+# Create the plot
+ggplot(results, aes(x = date, y = hits, color = keyword)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = custom_colors) +  # Specify custom colors
+  labs(title = "Google Trends Data",
+       x = "Date",
+       y = "Search Interest (0-100)",
+       color = "Keyword") +
+  theme_minimal()
+```
+
+```{r}
+# world
+results2 <- res2$interest_over_time
+# Define custom colors
+custom_colors <- c("musk" = "blue", "menendez" = "orange")
+
+# Create the plot
+ggplot(results2, aes(x = date, y = hits, color = keyword)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = custom_colors) +  # Specify custom colors
+  labs(title = "Google Trends Data",
+       x = "Date",
+       y = "Search Interest (0-100)",
+       color = "Keyword") +
+  theme_minimal()
+```
+
+```{r}
+# US
+results3 <- res3$interest_over_time
+# Define custom colors
+custom_colors <- c("death" = "green", "musk" = "blue", "menendez" = "orange")
+
+# Create the plot
+ggplot(results3, aes(x = date, y = hits, color = keyword)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = custom_colors) +  # Specify custom colors
+  labs(title = "Google Trends Data",
+       x = "Date",
+       y = "Search Interest (0-100)",
+       color = "Keyword") +
+  theme_minimal()
+```
+
+```{r}
+# US
+results4 <- res4$interest_over_time
+# Define custom colors
+custom_colors <- c("musk" = "blue", "menendez" = "orange")
+
+# Create the plot
+ggplot(results4, aes(x = date, y = hits, color = keyword)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = custom_colors) +  # Specify custom colors
+  labs(title = "Google Trends Data",
+       x = "Date",
+       y = "Search Interest (0-100)",
+       color = "Keyword") +
+  theme_minimal()
 ```
