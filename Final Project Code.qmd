@@ -159,7 +159,7 @@ tokens_cleaned <- tokens %>%
 print(tokens_cleaned)
 ```
 
-**Finding the common words overall**
+**Text Analyses**
 
 ```{r}
 # common words across all articles (not very specific, thematic words)
@@ -204,7 +204,7 @@ common_words_by_article_4wks <- tokens_cleaned %>%
 print(common_words_by_article_4wks)
 ```
 
-## Google Trends API
+## Google Trends API: All Four Weeks
 
 ```{r}
 #| message = FALSE
@@ -251,17 +251,6 @@ median(menendez$hits)
 var(death$hits)
 var(musk$hits)
 var(menendez$hits)
-```
-
-```{r}
-ggplot(results, aes(x = date, y = hits, color = keyword)) +
-  geom_line(linewidth = 1) +
-  facet_wrap(~ keyword, scales = "free_y") +
-  labs(title = "Google Trends Data",
-       x = "Date",
-       y = "Search Interest (0-100)",
-       color = "Keyword") +
-  theme_minimal()
 ```
 
 ```{r, cache=TRUE}
@@ -353,4 +342,38 @@ ggplot(results4, aes(x = date, y = hits, color = keyword)) +
        y = "Search Interest (0-100)",
        color = "Keyword") +
   theme_minimal()
+```
+
+## Google Trends API: 
+
+```{r, cache=TRUE}
+res5 <- gtrends(c("agatha", "harris", "payne"), 
+               geo = "", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res5)
+```
+
+```{r, cache=TRUE}
+res6 <- gtrends(c("agatha", "harris"), 
+               geo = "", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res6)
+```
+
+```{r, cache=TRUE}
+res7 <- gtrends(c("agatha", "harris", "payne"), 
+               geo = "US", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res7)
+```
+
+```{r, cache=TRUE}
+res8 <- gtrends(c("agatha", "harris"), 
+               geo = "US", 
+               time = "2024-10-06 2024-11-02", 
+               low_search_volume = TRUE)
+plot(res8)
 ```
