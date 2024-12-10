@@ -1,0 +1,110 @@
+---
+title: "Final Paper"
+author: "Grace DesJardins"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Patterns in Popularity: A Cross-Platform Analysis of Wikipedia and Google Trends**
+
+## By: Grace DesJardins
+
+GitHub repository link:
+
+## Introduction
+
+For my final project, I web scraped information from the "Most Popular Wikipedia Articles of the Week" webpage from four consecutive weeks (October 6 to 12, 2024; October 13 to 19, 2024; October 20 to 26, 2024; and October 27 to November 2, 2024). In gathering this information, I was curious if, over this four week period, there were any words/themes that appeared that were in common, and how they compared when looking at Google Trends data. With this question of interest, I performed a text analysis on the information that I scraped to find common words/themes, and then performed a Google Trends analysis using those common words/themes.
+
+## Wikipedia Web Scraping
+
+During my Wikipedia web scraping, I essentially repeated the same process four times because I had four consecutive weeks to scrape. First, I would read in the given Wikipedia html page as an R object. Then, I would extract the table from the web page. This table had 25 rows because of the fact that it was the 25 most popular Wikipedia articles from a given week, and then 6 columns: Rank, Article, Class, Views, Image, Notes/About. Once I extracted the table, I printed the result and noticed that there were NA's in the Class and Image columns, which made sense because there were images in both of those columns, which cannot be scraped and were not important to my analyses. Thus, I cleaned out those columns with NA, leaving me with the Rank, Article, Views, and Notes/About columns. As previously mentioned, I did this four times for each article: [October 6 to 12, 2024](https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_6_to_12,_2024); [October 13 to 19, 2024](https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_13_to_19,_2024); [October 20 to 26, 2024](https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_20_to_26,_2024); and [October 27 to November 2, 2024](https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_27_to_November_2,_2024). Below are previews of the four tables I obtained from these web scrapings.
+
+### October 6 to 12, 2024
+
+```{r, echo=FALSE, message=FALSE}
+library(xml2)
+library(rvest)
+library(tidyverse)
+library(tidytext)
+```
+
+```{r, echo=FALSE, message=FALSE}
+# reading in the html page as an R object
+url <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_6_to_12,_2024")
+
+# extracting the tables from url
+table_oct6to12 <- url %>% 
+  html_table(fill = TRUE)
+
+# extracting the table and saving it as "top_25_oct6to12"
+top_25_oct6to12 <- table_oct6to12[[1]]
+
+top_25_oct6to12 <- top_25_oct6to12[, -c(3,5)]
+head(top_25_oct6to12)
+```
+
+### October 13 to 19, 2024
+
+```{r, echo=FALSE, message=FALSE}
+# reading in the html page as an R object
+url2 <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_13_to_19,_2024")
+
+# extracting the tables from url
+table_oct13to19 <- url2 %>% 
+  html_table(fill = TRUE)
+
+# extracting the table and saving it as "top_25_oct13to19"
+top_25_oct13to19 <- table_oct13to19[[1]]
+
+# cleaning out the rows with NA
+top_25_oct13to19 <- top_25_oct13to19[, -c(3,5)]
+head(top_25_oct13to19)
+```
+
+### October 20 to 26, 2024
+
+```{r, message=FALSE, echo=FALSE}
+# reading in the html page as an R object
+url3 <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_20_to_26,_2024")
+
+# extracting the tables from url
+table_oct20to26 <- url3 %>% 
+  html_table(fill = TRUE)
+
+# extracting the table and saving it as "top_25_oct20to26"
+top_25_oct20to26 <- table_oct20to26[[1]]
+
+# cleaning out the rows with NA
+top_25_oct20to26 <- top_25_oct20to26[, -c(3,5)]
+head(top_25_oct20to26)
+```
+
+### October 27 to November 2, 2024
+
+```{r,message=FALSE,echo=FALSE}
+# reading in the html page as an R object
+url4 <- read_html("https://en.wikipedia.org/wiki/Wikipedia:Top_25_Report/October_27_to_November_2,_2024")
+
+# extracting the tables from url
+table_oct27tonov2 <- url4 %>% 
+  html_table(fill = TRUE)
+
+# extracting the table and saving it as "top_25_oct27tonov2"
+top_25_oct27tonov2 <- table_oct27tonov2[[1]]
+
+# cleaning out the rows with NA
+top_25_oct27tonov2 <- top_25_oct27tonov2[, -c(3,5)]
+head(top_25_oct27tonov2)
+```
+
+## Text Analyses
+
+From the Wikipedia web scrapings, I wanted to analyze the text data to see if there were any prominent words or themes across the four weeks. In order to ease this process, I combined the four tables above into one table. I also narrowed down the columns, leaving me with Article and Notes/about, as those columns had the textual data that I needed. In the end, this combined table had 100 rows (25 rows per week) and 2 columns.
+
+Next, I cleaned the data in this table utilizing the tidytext package. This allowed me to break the text in the Notes/about column into individual words (tokens), so each word became a row in a new data set. Cleaning the data also removed stop words (such as "and", "the"), which do not add much meaning for the text analysis. With this cleaned data, I was ready to move onto performing my text analyses.
